@@ -1,0 +1,10 @@
+GET /api/template/generate HTTP/1.1
+Host: localhost:8080
+Content-Type: application/xml
+
+<xmlData>
+    <person>
+        <name>Jan Serce</name>
+        <age>30</age>
+    </person>
+</xmlData>
