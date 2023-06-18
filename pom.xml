@@ -35,6 +35,17 @@
             <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
             <version>4.5.2</version>
         </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.28</version>
+                <scope>provided</scope>
+            </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-core</artifactId>
+            <version>4.9.1</version>
+        </dependency>
     </dependencies>
 
     <build>

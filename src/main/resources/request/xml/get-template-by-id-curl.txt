@@ -1,0 +1,1 @@
+curl --location 'localhost:8080/api/template/xml/648f08368af911709d18c6cb'

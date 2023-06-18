@@ -1,0 +1,18 @@
+curl --location --request PUT 'localhost:8080/api/template/xml/648f0b44f181a31ba83fb2d2' \
+--header 'Content-Type: application/xml' \
+--data-raw '<!-- I changed this -->
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="xml" indent="yes"/>
+    <xsl:param name="infoParam" select="'\''additional information saved'\''" />
+    <xsl:template match="/">
+        <xsl:copy>
+            <xsl:apply-templates select="*"/>
+        </xsl:copy>
+    </xsl:template>
+    <xsl:template match="person">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+            <info><xsl:value-of select="normalize-space($infoParam)"/></info>
+        </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>'
