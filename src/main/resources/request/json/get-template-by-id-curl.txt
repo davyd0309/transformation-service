@@ -1,0 +1,1 @@
+curl --location 'localhost:8080/api/template/json?id=648ff1171d71bc08d4ff4416'

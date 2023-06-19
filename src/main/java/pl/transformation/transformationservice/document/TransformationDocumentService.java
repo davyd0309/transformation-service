@@ -1,58 +1,95 @@
 package pl.transformation.transformationservice.document;
 
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
+import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
+import java.util.Optional;
 
 class TransformationDocumentService {
 
-    String transformXml(String xmlData) {
+    private final MongoTemplate mongoTemplate;
+
+    public TransformationDocumentService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    ByteArrayResource transformXml(DocumentData documentData) {
         try {
-            // Przygotowanie pliku XML wejściowego na podstawie danych przekazanych przez klienta
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            InputSource inputSource = new InputSource(new StringReader(xmlData));
-            Document xmlDoc = builder.parse(inputSource);
-
-            // Tworzenie transformatora
-            ClassPathResource xsltResource = new ClassPathResource("example-transform.xslt");
-            StreamSource xsltStreamSource = new StreamSource(xsltResource.getInputStream());
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer(xsltStreamSource);
-
-            // Przekazanie parametrów transformacji
-            //transformer.setParameter("paramName", "wartośćParametru");
-
-            // Przygotowanie strumienia wyjściowego
+            String template = getTemplate(documentData);
+            Document xmlDoc = createXmlBasedOnEntryFile(documentData);
+            Transformer transformer = createTransformer(template);
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
-
-            // Wykonanie transformacji
             transformer.transform(new DOMSource(xmlDoc), result);
-
-            // Pobranie wyniku transformacji jako tekst
             String transformedXML = writer.toString();
-
-            // Tutaj możesz zapisać wynik transformacji do pliku lub zwrócić go jako odpowiedź HTTP
-            // np. zapis do pliku:
-            // try (FileWriter fileWriter = new FileWriter("output.xml")) {
-            //     fileWriter.write(transformedXML);
-            // }
-            return transformedXML;
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                outputStream.write(transformedXML.getBytes());
+                return new ByteArrayResource(outputStream.toByteArray());
+            } catch (IOException e) {
+                // Obsłuż wyjątek
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return "Błąd podczas transformacji XML";
         }
+        return null; // TODO change to return Optional
+    }
+
+    private String getTemplate(DocumentData documentData) {
+        String template = Strings.EMPTY;
+        if (documentData.templateSavedType().equals("json")) { // TODO change to Enum
+            XSLTTemplateJson templateByIdJson = getTemplateByIdJson(documentData.templateId());
+            template = templateByIdJson.xsltContent();
+        }
+        if (documentData.templateSavedType().equals("xml")) { // TODO change to Enum
+            XSLTTemplateXml templateByIdXml = getTemplateByIdXml(documentData.templateId());
+            template = templateByIdXml.getTemplate();
+        }
+        return template;
+    }
+
+    private Transformer createTransformer(String template) throws TransformerConfigurationException {
+        StreamSource xsltStreamSource = new StreamSource(new StringReader(template));
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        //transformer.setParameter("paramName", "wartośćParametru");
+        return transformerFactory.newTransformer(xsltStreamSource);
+    }
+
+    private Document createXmlBasedOnEntryFile(DocumentData documentData) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        InputSource inputSource = new InputSource(new StringReader(documentData.xmlData()));
+        return builder.parse(inputSource);
+    }
+
+    private XSLTTemplateXml getTemplateByIdXml(String id) {
+        Query query = new Query(Criteria.where("_id").is(id));
+        return Optional.ofNullable(mongoTemplate.findOne(query, org.bson.Document.class, "templates"))
+                .map(document -> new XSLTTemplateXml(document.getObjectId("_id").toHexString(), document.getString("template")))
+                .orElse(new XSLTTemplateXml());
+    }
+
+    public XSLTTemplateJson getTemplateByIdJson(String id) {
+        Query query = new Query(Criteria.where("_id").is(id));
+        return mongoTemplate.findOne(query, XSLTTemplateJson.class, "templates-json");
     }
 }

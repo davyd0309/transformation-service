@@ -1,6 +1,7 @@
 package pl.transformation.transformationservice.template.xml;
 
-import org.bson.Document;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,19 +21,20 @@ public class TransformationTemplateXmlController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<DocumentDto> createTemplate(@RequestBody String xsltTemplate) {
+    @Operation(summary = "Create a new template")
+    public ResponseEntity<XSLTTemplateXml> createTemplate(@RequestBody String xsltTemplate) {
         return new ResponseEntity<>(transformationTemplateXmlService.createTemplate(xsltTemplate), HttpStatus.CREATED);
     }
 
     @GetMapping()
-    public ResponseEntity<List<DocumentDto>> getAllTemplates() {
+    public ResponseEntity<List<XSLTTemplateXml>> getAllTemplates() {
         return new ResponseEntity<>(transformationTemplateXmlService.getAllTemplates(),
                 HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<DocumentDto> getTemplateById(@PathVariable("id") String id) {
-        DocumentDto templateById = transformationTemplateXmlService.getTemplateById(id);
+    public ResponseEntity<XSLTTemplateXml> getTemplateById(@PathVariable("id") String id) {
+        XSLTTemplateXml templateById = transformationTemplateXmlService.getTemplateById(id);
         return Objects.isNull(templateById.getId()) ?
              new ResponseEntity<>(templateById, HttpStatus.NO_CONTENT) :
         new ResponseEntity<>(templateById, HttpStatus.OK);
@@ -45,7 +47,7 @@ public class TransformationTemplateXmlController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_XML_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DocumentDto> replaceTemplateById(@PathVariable("id") String id, @RequestBody String xsltTemplate) {
+    public ResponseEntity<XSLTTemplateXml> replaceTemplateById(@PathVariable("id") String id, @RequestBody String xsltTemplate) {
         return new ResponseEntity<>(transformationTemplateXmlService.replaceTemplateById(id, xsltTemplate),
                 HttpStatus.OK);
     }

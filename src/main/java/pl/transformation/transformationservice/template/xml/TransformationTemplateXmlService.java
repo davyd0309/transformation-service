@@ -1,6 +1,5 @@
 package pl.transformation.transformationservice.template.xml;
 
-import com.mongodb.DBObject;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -13,17 +12,20 @@ import java.util.stream.Collectors;
 
 class TransformationTemplateXmlService {
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
-    public DocumentDto createTemplate(String xsltTemplate) {
-        Document document = mongoTemplate.insert(new Document("template",xsltTemplate), "templates");
-        return new DocumentDto(document.getObjectId("_id").toHexString(), document.getString("template"));
+    public TransformationTemplateXmlService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
     }
 
-    public  List<DocumentDto> getAllTemplates() {
+    public XSLTTemplateXml createTemplate(String xsltTemplate) {
+        Document document = mongoTemplate.insert(new Document("template",xsltTemplate), "templates");
+        return new XSLTTemplateXml(document.getObjectId("_id").toHexString(), document.getString("template"));
+    }
+
+    public  List<XSLTTemplateXml> getAllTemplates() {
        return mongoTemplate.findAll(Document.class, "templates")
-               .stream().map(document -> new DocumentDto(document.getObjectId("_id").toHexString(),
+               .stream().map(document -> new XSLTTemplateXml(document.getObjectId("_id").toHexString(),
                        document.getString("template"))) .collect(Collectors.toList());
     }
 
@@ -32,19 +34,19 @@ class TransformationTemplateXmlService {
         mongoTemplate.remove(query, Document.class, "templates");
     }
 
-    public DocumentDto replaceTemplateById(String id, String xsltTemplate) {
+    public XSLTTemplateXml replaceTemplateById(String id, String xsltTemplate) {
         Query query = new Query(Criteria.where("_id").is(id));
         Document replacementDocument = new Document("template", xsltTemplate);
         mongoTemplate.findAndReplace(query, replacementDocument, "templates");
         return Optional.ofNullable(mongoTemplate.findOne(query, Document.class, "templates"))
-                .map(document -> new DocumentDto(document.getObjectId("_id").toHexString(), document.getString("template")))
-                .orElse(new DocumentDto());
+                .map(document -> new XSLTTemplateXml(document.getObjectId("_id").toHexString(), document.getString("template")))
+                .orElse(new XSLTTemplateXml());
     }
 
-    public DocumentDto getTemplateById(String id) {
+    public XSLTTemplateXml getTemplateById(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
         return Optional.ofNullable(mongoTemplate.findOne(query, Document.class, "templates"))
-                .map(document -> new DocumentDto(document.getObjectId("_id").toHexString(), document.getString("template")))
-                .orElse(new DocumentDto());
+                .map(document -> new XSLTTemplateXml(document.getObjectId("_id").toHexString(), document.getString("template")))
+                .orElse(new XSLTTemplateXml());
     }
 }

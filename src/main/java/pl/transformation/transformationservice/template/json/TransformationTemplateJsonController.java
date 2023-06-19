@@ -19,47 +19,47 @@ public class TransformationTemplateJsonController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<XSLTTemplate> createTemplate(@RequestBody XSLTTemplate xsltTemplate) {
-        return new ResponseEntity<>(transformationTemplateJsonService.createTemplate(xsltTemplate), HttpStatus.CREATED);
+    public ResponseEntity<XSLTTemplateJson> createTemplate(@RequestBody XSLTTemplateJson xsltTemplateJson) {
+        return new ResponseEntity<>(transformationTemplateJsonService.createTemplate(xsltTemplateJson), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<XSLTTemplate>> getAllTemplates() {
+    public ResponseEntity<List<XSLTTemplateJson>> getAllTemplates() {
         return new ResponseEntity<>(transformationTemplateJsonService.getAllTemplates(),
                 HttpStatus.OK);
     }
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<XSLTTemplate> getTemplateBy(@RequestParam(value = "filename", required = false) String filename,
-                                                      @RequestParam(value = "id", required = false) String id) {
+    public ResponseEntity<XSLTTemplateJson> getTemplateBy(@RequestParam(value = "filename", required = false) String filename,
+                                                          @RequestParam(value = "id", required = false) String id) {
         if (filename != null) {
-            XSLTTemplate templateByFilename = transformationTemplateJsonService.getTemplateByFilename(filename);
+            XSLTTemplateJson templateByFilename = transformationTemplateJsonService.getTemplateByFilename(filename);
             return Objects.isNull(templateByFilename) ?
                     new ResponseEntity<>(templateByFilename, HttpStatus.NO_CONTENT) :
                     new ResponseEntity<>(templateByFilename, HttpStatus.OK);
         } else if (id != null) {
-            XSLTTemplate templateById = transformationTemplateJsonService.getTemplateById(id);
-            return Objects.isNull(templateById.id()) ?
+            XSLTTemplateJson templateById = transformationTemplateJsonService.getTemplateById(id);
+            return Objects.isNull(templateById) ?
                     new ResponseEntity<>(templateById, HttpStatus.NO_CONTENT) :
                     new ResponseEntity<>(templateById, HttpStatus.OK);
         }
         return ResponseEntity.badRequest().build();
     }
-    @DeleteMapping
-    public ResponseEntity<Void> deleteTemplate(@RequestParam(value = "filename", required = false) String filename,
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> deleteTemplate(@RequestParam(value = "filename", required = false) String filename,
                                                @RequestParam(value = "id", required = false) String id) {
         if (filename != null) {
-            transformationTemplateJsonService.deleteTemplateByFileName(filename);
+            return new ResponseEntity<>(transformationTemplateJsonService.deleteTemplateByFileName(filename), HttpStatus.NO_CONTENT);
         } else if (id != null) {
-            transformationTemplateJsonService.deleteTemplateById(id);
+            return new ResponseEntity<>(transformationTemplateJsonService.deleteTemplateById(id),HttpStatus.NO_CONTENT);
         }
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<XSLTTemplate> replaceTemplateById(@PathVariable("id") String id, @RequestBody XSLTTemplate xsltTemplate) {
-        return new ResponseEntity<>(transformationTemplateJsonService.replaceTemplateById(id, xsltTemplate),
+    public ResponseEntity<XSLTTemplateJson> replaceTemplateById(@PathVariable("id") String id, @RequestBody XSLTTemplateJson xsltTemplateJson) {
+        return new ResponseEntity<>(transformationTemplateJsonService.replaceTemplateById(id, xsltTemplateJson),
                 HttpStatus.OK);
     }
 }

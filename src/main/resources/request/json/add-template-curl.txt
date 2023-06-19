@@ -1,0 +1,7 @@
+curl --location 'localhost:8080/api/template/json' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "filename": "PersonalDataChange",
+    "description": "Template use for add information about user",
+    "xsltContent": "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\r\n    <xsl:output method=\"xml\" indent=\"yes\"/>\r\n    <xsl:param name=\"infoParam\" select=\"'\''additional information saved'\''\" />\r\n    <xsl:template match=\"/\">\r\n        <xsl:copy>\r\n            <xsl:apply-templates select=\"*\"/>\r\n        </xsl:copy>\r\n    </xsl:template>\r\n    <xsl:template match=\"*\">\r\n        <xsl:copy>\r\n            <xsl:copy-of select=\"@*\"/>\r\n            <xsl:apply-templates select=\"node()\"/>\r\n        </xsl:copy>\r\n    </xsl:template>\r\n    <xsl:template match=\"text()\">\r\n        <xsl:if test=\"normalize-space(.) != '\'''\''\">\r\n            <xsl:value-of select=\"normalize-space(.)\"/>\r\n        </xsl:if>\r\n    </xsl:template>\r\n    <xsl:template match=\"person\">\r\n        <xsl:copy>\r\n            <xsl:apply-templates select=\"@*|node()\"/>\r\n            <info><xsl:value-of select=\"normalize-space($infoParam)\"/></info>\r\n        </xsl:copy>\r\n    </xsl:template>\r\n</xsl:stylesheet>"
+}'

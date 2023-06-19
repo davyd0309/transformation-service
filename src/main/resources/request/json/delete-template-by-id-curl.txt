@@ -1,0 +1,1 @@
+curl --location --request DELETE 'localhost:8080/api/template/json?id=648ff7f348c3e85f6d66f33c'

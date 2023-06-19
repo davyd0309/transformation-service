@@ -1,0 +1,8 @@
+curl --location --request GET 'localhost:8080/api/template/generate/649011857b948710024ce1e9?templateSavedType=xml&logDocument=false&asynchronous=false' \
+--header 'Content-Type: application/xml' \
+--data '<xmlData>
+    <person>
+        <name>Jan Serce</name>
+        <age>30</age>
+    </person>
+</xmlData>'
