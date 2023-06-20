@@ -26,7 +26,7 @@ class TransformationTemplateXmlServiceTest {
     private final TransformationTemplateXmlService templateService = new TransformationTemplateXmlService(mongoTemplate);
 
     @Test
-    public void testCreateTemplate_Success() {
+     void testCreateTemplate_Success() {
         // given
         String xsltTemplate = "<xsl:stylesheet>...</xsl:stylesheet>";
         Document insertedDocument = new Document("_id", new ObjectId("609b2a8643e6a12345678901"))
@@ -43,7 +43,7 @@ class TransformationTemplateXmlServiceTest {
     }
 
     @Test
-    public void testGetAllTemplates_Success() {
+     void testGetAllTemplates_Success() {
         // given
         Document document1 = new Document("_id", new ObjectId("609b2a8643e6a12345678901"))
                 .append("template", "<xsl:stylesheet>...</xsl:stylesheet>");
@@ -62,7 +62,7 @@ class TransformationTemplateXmlServiceTest {
     }
 
     @Test
-    public void testDeleteTemplateById_Success() {
+     void testDeleteTemplateById_Success() {
         // given
         String id = "609b2a8643e6a12345678901";
         Query expectedQuery = new Query(Criteria.where("_id").is(id));
@@ -73,7 +73,7 @@ class TransformationTemplateXmlServiceTest {
     }
 
     @Test
-    public void testReplaceTemplateById_Success() {
+     void testReplaceTemplateById_Success() {
         // given
         String id = "609b2a8643e6a12345678901";
         String xsltTemplate = "<xsl:stylesheet>...</xsl:stylesheet>";
@@ -94,7 +94,7 @@ class TransformationTemplateXmlServiceTest {
     }
 
     @Test
-    public void testGetTemplateById_Success() {
+     void testGetTemplateById_Success() {
         // given
         String id = "609b2a8643e6a12345678901";
         Query expectedQuery = new Query(Criteria.where("_id").is(id));

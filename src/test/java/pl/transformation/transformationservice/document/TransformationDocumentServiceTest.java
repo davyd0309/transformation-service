@@ -1,5 +1,7 @@
 package pl.transformation.transformationservice.document;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,62 +32,33 @@ class TransformationDocumentServiceTest {
     private final TransformationDocumentService transformationDocumentService = new TransformationDocumentService(mongoTemplate);
 
     @Test
-    void testTransformXml() throws Exception {
-        // Given
-        DocumentData documentData = new DocumentData("<root>Hello, World!</root>","xml",false,false,"1");
-        XSLTTemplateXml template = new XSLTTemplateXml("1","<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-
-        when(mongoTemplate.findOne(any(Query.class), eq(XSLTTemplateXml.class), eq("templates")))
-                .thenReturn(template);
-
-        // When
+    void testTransformXml_XmlTemplate() {
+        // given
+        DocumentData documentData = new DocumentData("<root>Hello, World!</root>", "xml", false, false, "1");
+        XSLTTemplateXml template = new XSLTTemplateXml("1", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
+        when(mongoTemplate.findOne(any(Query.class), eq(org.bson.Document.class), eq("templates")))
+                .thenReturn(new Document(Map.of(
+                        "_id", new ObjectId("132423424324242423432344"),
+                        "template", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>")));
+        // when
         ByteArrayResource result = transformationDocumentService.transformXml(documentData);
-
-        // Then
+        // then
         assertThat(result).isNotNull();
         assertThat(result.contentLength()).isGreaterThan(0);
-        // Additional assertions for the transformed XML content
     }
 
-//    @Test
-//    void testTransformXml_JsonTemplate() throws Exception {
-//        // Given
-//        DocumentData documentData = new DocumentData();
-//        documentData.setTemplateSavedType("json");
-//        documentData.setTemplateId("1");
-//        documentData.setXmlData("<root>Hello, World!</root>");
-//
-//        XSLTTemplateJson template = new XSLTTemplateJson();
-//        template.setId("1");
-//        template.setXsltContent("<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-//
-//        when(mongoTemplate.findOne(any(Query.class), eq(XSLTTemplateJson.class), eq("templates-json")))
-//                .thenReturn(template);
-//
-//        // When
-//        ByteArrayResource result = transformationDocumentService.transformXml(documentData);
-//
-//        // Then
-//        assertThat(result).isNotNull();
-//        assertThat(result.contentLength()).isGreaterThan(0);
-//        // Additional assertions for the transformed XML content
-//    }
-//
-//    @Test
-//    void testTransformXml_TemplateNotFound() throws Exception {
-//        // Given
-//        DocumentData documentData = new DocumentData();
-//        documentData.setTemplateSavedType("xml");
-//        documentData.setTemplateId("1");
-//        documentData.setXmlData("<root>Hello, World!</root>");
-//
-//        when(mongoTemplate.findOne(any(Query.class), eq(XSLTTemplateXml.class), eq("templates")))
-//                .thenReturn(null);
-//
-//        // When
-//        ByteArrayResource result = transformationDocumentService.transformXml(documentData);
-//
-//        // Then
-//        assertThat(result).isNull();
-//    }
+    @Test
+    void testTransformXml_JsonTemplate() {
+        // given
+        DocumentData documentData = new DocumentData("<root>Hello, World!</root>", "json", false, false, "1");
+        XSLTTemplateJson template = new XSLTTemplateJson("1", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
+        when(mongoTemplate.findOne(any(Query.class), eq(XSLTTemplateJson.class), eq("templates-json")))
+                .thenReturn(template);
+        // when
+        ByteArrayResource result = transformationDocumentService.transformXml(documentData);
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.contentLength()).isGreaterThan(0);
+    }
+
 }

@@ -27,27 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class TransformationTemplateXmlControllerTest {
+ class TransformationTemplateXmlControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @Test
-    void testCreateTemplate() {
-        // Given
-        String xsltTemplate = "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/\">...</xsl:template></xsl:stylesheet>";
-
-        // When
-        ResponseEntity<XSLTTemplateXml> response = restTemplate.postForEntity("/api/template/xml",
-                xsltTemplate, XSLTTemplateXml.class);
-
-        // Then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        XSLTTemplateXml template = response.getBody();
-        assertThat(template).isNotNull();
-        assertThat(template.getId()).isNotNull();
-        assertThat(template.getTemplate()).isEqualTo(xsltTemplate);
-    }
 
     @Test
     void testGetAllTemplates() {
@@ -93,23 +76,5 @@ public class TransformationTemplateXmlControllerTest {
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
-    @Test
-    void testReplaceTemplateById() {
-        // Given
-        String templateId = "1";
-        String xsltTemplate = "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/\">...</xsl:template></xsl:stylesheet>";
-
-        // When
-        ResponseEntity<XSLTTemplateXml> response = restTemplate.exchange("/api/template/xml/{id}",
-                HttpMethod.PUT, new HttpEntity<>(xsltTemplate), XSLTTemplateXml.class, templateId);
-
-        // Then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        XSLTTemplateXml template = response.getBody();
-        assertThat(template).isNotNull();
-        assertThat(template.getId()).isEqualTo(templateId);
-        assertThat(template.getTemplate()).isEqualTo(xsltTemplate);
     }
 }

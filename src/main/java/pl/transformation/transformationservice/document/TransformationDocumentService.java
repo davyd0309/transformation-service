@@ -1,6 +1,8 @@
 package pl.transformation.transformationservice.document;
 
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -27,6 +29,8 @@ import java.util.Optional;
 
 class TransformationDocumentService {
 
+    private static final Logger log = LoggerFactory.getLogger(TransformationDocumentService.class);
+
     private final MongoTemplate mongoTemplate;
 
     public TransformationDocumentService(MongoTemplate mongoTemplate) {
@@ -46,10 +50,10 @@ class TransformationDocumentService {
                 outputStream.write(transformedXML.getBytes());
                 return new ByteArrayResource(outputStream.toByteArray());
             } catch (IOException e) {
-                // Obsłuż wyjątek
+                log.error("An error occurred during IO operation: " + e.getMessage(), e);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("An error occurred during XML transformation: " + e.getMessage(), e);
         }
         return null; // TODO change to return Optional
     }
@@ -68,7 +72,9 @@ class TransformationDocumentService {
     }
 
     private Transformer createTransformer(String template) throws TransformerConfigurationException {
-        StreamSource xsltStreamSource = new StreamSource(new StringReader(template));
+        StreamSource xsltStreamSource =
+                new StreamSource(new StringReader(Optional.ofNullable(template)
+                        .orElseThrow(() -> new IllegalArgumentException("Template not exist"))));
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         //transformer.setParameter("paramName", "wartośćParametru");
         return transformerFactory.newTransformer(xsltStreamSource);
