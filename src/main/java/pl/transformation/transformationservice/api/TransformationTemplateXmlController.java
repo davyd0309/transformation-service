@@ -1,4 +1,4 @@
-package pl.transformation.transformationservice.template.xml;
+package pl.transformation.transformationservice.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.transformation.transformationservice.template.xml.TransformationTemplateXmlService;
+import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
 
 import java.util.List;
 import java.util.Objects;

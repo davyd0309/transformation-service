@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.List;
 import java.util.Optional;
 
-class TransformationTemplateJsonService {
+public class TransformationTemplateJsonService {
 
     private final MongoTemplate mongoTemplate;
 

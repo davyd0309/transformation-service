@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-class TransformationTemplateXmlService {
+public class TransformationTemplateXmlService {
 
     private final MongoTemplate mongoTemplate;
 

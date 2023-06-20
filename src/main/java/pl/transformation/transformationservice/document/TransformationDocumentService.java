@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
-class TransformationDocumentService {
+public class TransformationDocumentService {
 
     private static final Logger log = LoggerFactory.getLogger(TransformationDocumentService.class);
 
