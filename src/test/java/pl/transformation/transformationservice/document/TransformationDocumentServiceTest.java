@@ -17,6 +17,7 @@ import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TransformationDocumentServiceTest {
 
     private final MongoTemplate mongoTemplate = Mockito.mock(MongoTemplate.class);
-    private final TransformationDocumentService transformationDocumentService = new TransformationDocumentService(mongoTemplate);
+    private final ExecutorService executorService = Mockito.mock(ExecutorService.class);
+    private final TransformationDocumentService transformationDocumentService = new TransformationDocumentService(mongoTemplate, executorService);
 
     @Test
     void testTransformXml_XmlTemplate() {
@@ -41,7 +43,7 @@ class TransformationDocumentServiceTest {
                         "_id", new ObjectId("132423424324242423432344"),
                         "template", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>")));
         // when
-        ByteArrayResource result = transformationDocumentService.transformXml(documentData);
+        ByteArrayResource result = transformationDocumentService.transformXml(documentData).block();
         // then
         assertThat(result).isNotNull();
         assertThat(result.contentLength()).isGreaterThan(0);
@@ -55,7 +57,7 @@ class TransformationDocumentServiceTest {
         when(mongoTemplate.findOne(any(Query.class), eq(XSLTTemplateJson.class), eq("templates-json")))
                 .thenReturn(template);
         // when
-        ByteArrayResource result = transformationDocumentService.transformXml(documentData);
+        ByteArrayResource result = transformationDocumentService.transformXml(documentData).block();
         // then
         assertThat(result).isNotNull();
         assertThat(result.contentLength()).isGreaterThan(0);

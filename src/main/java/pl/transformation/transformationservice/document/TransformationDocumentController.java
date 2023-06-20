@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.http.MediaType.*;
 
@@ -70,11 +71,12 @@ public class TransformationDocumentController {
             }
     )
     @PostMapping(value = "/{templateId}", consumes = APPLICATION_XML_VALUE, produces = APPLICATION_XML_VALUE)
-    public ResponseEntity<ByteArrayResource> generateDocument(@PathVariable("templateId") String templateId,
-                                                              @org.springframework.web.bind.annotation.RequestBody String xmlData,
-                                                              @RequestParam(value = "templateSavedType") String templateSavedType,
-                                                              @RequestParam(value = "logDocument") boolean logDocument,
-                                                              @RequestParam(value = "asynchronous") boolean asynchronous
+    public
+    ResponseEntity<Mono<ByteArrayResource>> generateDocument(@PathVariable("templateId") String templateId,
+                                                             @org.springframework.web.bind.annotation.RequestBody String xmlData,
+                                                             @RequestParam(value = "templateSavedType") String templateSavedType,
+                                                             @RequestParam(value = "logDocument") boolean logDocument,
+                                                             @RequestParam(value = "asynchronous") boolean asynchronous
     ) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);

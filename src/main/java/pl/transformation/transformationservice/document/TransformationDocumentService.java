@@ -14,6 +14,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,18 +28,34 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 class TransformationDocumentService {
 
     private static final Logger log = LoggerFactory.getLogger(TransformationDocumentService.class);
 
     private final MongoTemplate mongoTemplate;
+    private final ExecutorService executorService;
 
-    public TransformationDocumentService(MongoTemplate mongoTemplate) {
+    public TransformationDocumentService(MongoTemplate mongoTemplate,ExecutorService executorService) {
         this.mongoTemplate = mongoTemplate;
+        this.executorService = executorService;
     }
 
-    ByteArrayResource transformXml(DocumentData documentData) {
+    public Mono<ByteArrayResource> transformXml(DocumentData documentData) {
+        if (documentData.asynchronous()) {
+            return transformXmlAsync(documentData);
+        } else {
+            return Mono.fromCallable(() -> transformXmlSync(documentData));
+        }
+    }
+
+    private Mono<ByteArrayResource> transformXmlAsync(DocumentData documentData) {
+        return Mono.fromCallable(() -> transformXmlSync(documentData))
+                .subscribeOn(Schedulers.fromExecutorService(executorService));
+    }
+
+    private ByteArrayResource transformXmlSync(DocumentData documentData) {
         try {
             String template = getTemplate(documentData);
             Document xmlDoc = createXmlBasedOnEntryFile(documentData);
