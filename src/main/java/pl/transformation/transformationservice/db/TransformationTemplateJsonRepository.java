@@ -1,8 +1,9 @@
-package pl.transformation.transformationservice.template.db;
+package pl.transformation.transformationservice.db;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import pl.transformation.transformationservice.template.TransformationTemplateRepository;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 
 import java.util.List;

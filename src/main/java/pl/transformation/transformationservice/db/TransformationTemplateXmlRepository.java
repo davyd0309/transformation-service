@@ -1,10 +1,11 @@
-package pl.transformation.transformationservice.template.db;
+package pl.transformation.transformationservice.db;
 
 import org.apache.logging.log4j.util.Strings;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import pl.transformation.transformationservice.template.TransformationTemplateRepository;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
 
 import java.util.List;

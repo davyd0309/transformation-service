@@ -1,4 +1,4 @@
-package pl.transformation.transformationservice.template.db;
+package pl.transformation.transformationservice.template;
 
 import java.util.List;
 

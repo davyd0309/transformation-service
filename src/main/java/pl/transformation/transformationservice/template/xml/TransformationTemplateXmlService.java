@@ -1,6 +1,6 @@
 package pl.transformation.transformationservice.template.xml;
 
-import pl.transformation.transformationservice.template.db.TransformationTemplateRepository;
+import pl.transformation.transformationservice.template.TransformationTemplateRepository;
 
 import java.util.List;
 

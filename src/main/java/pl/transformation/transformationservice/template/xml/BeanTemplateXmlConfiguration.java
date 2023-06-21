@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import pl.transformation.transformationservice.config.MongoConfiguration;
-import pl.transformation.transformationservice.template.db.TransformationTemplateRepository;
-import pl.transformation.transformationservice.template.db.TransformationTemplateXmlRepository;
+import pl.transformation.transformationservice.template.TransformationTemplateRepository;
+import pl.transformation.transformationservice.db.TransformationTemplateXmlRepository;
 
 @Configuration
 @Import(MongoConfiguration.class)

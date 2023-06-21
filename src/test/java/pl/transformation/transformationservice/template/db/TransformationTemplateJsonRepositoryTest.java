@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import pl.transformation.transformationservice.db.TransformationTemplateJsonRepository;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 
 import java.util.List;
