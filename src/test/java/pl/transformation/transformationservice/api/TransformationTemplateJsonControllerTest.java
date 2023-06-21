@@ -16,8 +16,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.transformation.transformationservice.template.json.TransformationTemplateJsonService;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)

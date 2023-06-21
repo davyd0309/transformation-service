@@ -1,97 +1,115 @@
 package pl.transformation.transformationservice.template.json;
 
-import org.mockito.Mockito;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import pl.transformation.transformationservice.template.db.TransformationTemplateRepository;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@ExtendWith(MockitoExtension.class)
 class TransformationTemplateJsonServiceTest {
 
-    private final MongoTemplate mongoTemplate = Mockito.mock(MongoTemplate.class);
-    private final TransformationTemplateJsonService templateService = new TransformationTemplateJsonService(mongoTemplate);
+    @Mock
+    private TransformationTemplateRepository<XSLTTemplateJson> repository;
+    private TransformationTemplateJsonService service;
+
+    @BeforeEach
+    void setup() {
+        service = new TransformationTemplateJsonService(repository);
+    }
 
     @Test
     void testCreateTemplate() {
         // given
-        XSLTTemplateJson templateJson = new XSLTTemplateJson("1", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        when(mongoTemplate.insert(eq(templateJson))).thenReturn(templateJson);
+        XSLTTemplateJson template = new XSLTTemplateJson("1", "PersonalDataChange", "Template description", "<xsl:stylesheet>...</xsl:stylesheet>");
+        when(repository.createTemplate(template)).thenReturn(template);
         // when
-        XSLTTemplateJson result = templateService.createTemplate(templateJson);
+        XSLTTemplateJson result = service.createTemplate(template);
         // then
-        assertThat(result).isEqualTo(templateJson);
-        verify(mongoTemplate).insert(eq(templateJson));
+        verify(repository).createTemplate(template);
+        assertEquals(template, result);
     }
 
     @Test
     void testGetAllTemplates() {
         // given
-        XSLTTemplateJson templateJson1 = new XSLTTemplateJson("1", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        XSLTTemplateJson templateJson2 = new XSLTTemplateJson("2", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        List<XSLTTemplateJson> templates = Arrays.asList(templateJson1, templateJson2);
-        when(mongoTemplate.findAll(eq(XSLTTemplateJson.class), eq("templates-json"))).thenReturn(templates);
+        List<XSLTTemplateJson> templates = Arrays.asList(
+                new XSLTTemplateJson("1", "Template1", "Description1", "<xsl:stylesheet>...</xsl:stylesheet>"),
+                new XSLTTemplateJson("2", "Template2", "Description2", "<xsl:stylesheet>...</xsl:stylesheet>")
+        );
+        when(repository.getAllTemplates()).thenReturn(templates);
         // when
-        List<XSLTTemplateJson> result = templateService.getAllTemplates();
+        List<XSLTTemplateJson> result = service.getAllTemplates();
         // then
-        assertThat(result).isEqualTo(templates);
-        verify(mongoTemplate).findAll(eq(XSLTTemplateJson.class), eq("templates-json"));
+        verify(repository).getAllTemplates();
+        assertEquals(templates, result);
+    }
+
+    @Test
+    void testDeleteTemplateById() {
+        // given
+        String id = "1";
+        // when
+        service.deleteTemplateById(id);
+        // then
+        verify(repository).deleteTemplateById(id);
+    }
+
+    @Test
+    void testDeleteTemplateByFileName() {
+        // given
+        String filename = "PersonalDataChange";
+        // when
+        service.deleteTemplateByFileName(filename);
+        // then
+        verify(repository).deleteTemplateByFileName(filename);
     }
 
     @Test
     void testReplaceTemplateById() {
         // given
-        String id = "123";
-        XSLTTemplateJson templateJson1 = new XSLTTemplateJson("123", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        Query query = new Query(Criteria.where("_id").is(id));
-        when(mongoTemplate.findAndReplace(eq(query), eq(templateJson1), eq("templates-json"))).thenReturn(null);
-        when(mongoTemplate.findOne(eq(query), eq(XSLTTemplateJson.class), eq("templates-json"))).thenReturn(templateJson1);
+        String id = "1";
+        XSLTTemplateJson template = new XSLTTemplateJson("1", "PersonalDataChange", "Template description", "<xsl:stylesheet>...</xsl:stylesheet>");
+        when(repository.replaceTemplateById(id, template)).thenReturn(template);
         // when
-        XSLTTemplateJson result = templateService.replaceTemplateById(id, templateJson1);
+        XSLTTemplateJson result = service.replaceTemplateById(id, template);
         // then
-        assertThat(result).isEqualTo(templateJson1);
-        verify(mongoTemplate).findAndReplace(eq(query), eq(templateJson1), eq("templates-json"));
-        verify(mongoTemplate).findOne(eq(query), eq(XSLTTemplateJson.class), eq("templates-json"));
+        verify(repository).replaceTemplateById(id, template);
+        assertEquals(template, result);
     }
 
     @Test
     void testGetTemplateById() {
         // given
-        String id = "123";
-        XSLTTemplateJson templateJson1 = new XSLTTemplateJson("123", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        Query query = new Query(Criteria.where("_id").is(id));
-        when(mongoTemplate.findOne(eq(query), eq(XSLTTemplateJson.class), eq("templates-json"))).thenReturn(templateJson1);
+        String id = "1";
+        XSLTTemplateJson template = new XSLTTemplateJson("1", "PersonalDataChange", "Template description", "<xsl:stylesheet>...</xsl:stylesheet>");
+        when(repository.getTemplateById(id)).thenReturn(template);
         // when
-        XSLTTemplateJson result = templateService.getTemplateById(id);
+        XSLTTemplateJson result = service.getTemplateById(id);
         // then
-        assertThat(result).isEqualTo(templateJson1);
-        verify(mongoTemplate).findOne(eq(query), eq(XSLTTemplateJson.class), eq("templates-json"));
+        verify(repository).getTemplateById(id);
+        assertEquals(template, result);
     }
 
     @Test
     void testGetTemplateByFilename() {
         // given
-        String filename = "template.json";
-        XSLTTemplateJson templateJson1 = new XSLTTemplateJson("123", "FileName", "Descr", "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:template match=\"/root\">...</xsl:template></xsl:stylesheet>");
-        Query query = new Query(Criteria.where("filename").is(filename));
-        when(mongoTemplate.find(eq(query), eq(XSLTTemplateJson.class))).thenReturn(Arrays.asList(templateJson1));
+        String filename = "PersonalDataChange";
+        XSLTTemplateJson template = new XSLTTemplateJson("1", "PersonalDataChange", "Template description", "<xsl:stylesheet>...</xsl:stylesheet>");
+        when(repository.getTemplateByFilename(filename)).thenReturn(template);
         // when
-        XSLTTemplateJson result = templateService.getTemplateByFilename(filename);
+        XSLTTemplateJson result = service.getTemplateByFilename(filename);
         // then
-        assertThat(result).isEqualTo(templateJson1);
-        verify(mongoTemplate).find(eq(query), eq(XSLTTemplateJson.class));
+        verify(repository).getTemplateByFilename(filename);
+        assertEquals(template, result);
     }
 
 }

@@ -1,57 +1,42 @@
 package pl.transformation.transformationservice.template.json;
 
-import com.mongodb.DBObject;
-import com.mongodb.client.result.DeleteResult;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import pl.transformation.transformationservice.template.db.TransformationTemplateRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public class TransformationTemplateJsonService {
 
-    private final MongoTemplate mongoTemplate;
+    private final TransformationTemplateRepository<XSLTTemplateJson> transformationTemplateRepository;
 
-    public TransformationTemplateJsonService(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public TransformationTemplateJsonService(TransformationTemplateRepository<XSLTTemplateJson> transformationTemplateRepository) {
+        this.transformationTemplateRepository = transformationTemplateRepository;
     }
 
     public XSLTTemplateJson createTemplate(XSLTTemplateJson xsltTemplateJson) {
-        return mongoTemplate.insert(xsltTemplateJson);
+        return transformationTemplateRepository.createTemplate(xsltTemplateJson);
     }
 
-    public  List<XSLTTemplateJson> getAllTemplates() {
-       return mongoTemplate.findAll(XSLTTemplateJson.class, "templates-json");
+    public List<XSLTTemplateJson> getAllTemplates() {
+        return transformationTemplateRepository.getAllTemplates();
     }
 
-    public Long deleteTemplateById(String id){
-        Query query = new Query(Criteria.where("_id").is(id));
-        return mongoTemplate.remove(query, XSLTTemplateJson.class, "templates-json").getDeletedCount();
+    public Long deleteTemplateById(String id) {
+        return transformationTemplateRepository.deleteTemplateById(id);
     }
 
-    public Long deleteTemplateByFileName(String filename){
-        Query query = new Query(Criteria.where("filename").is(filename));
-        return  mongoTemplate.remove(query, XSLTTemplateJson.class, "templates-json").getDeletedCount();
+    public Long deleteTemplateByFileName(String filename) {
+        return transformationTemplateRepository.deleteTemplateByFileName(filename);
     }
 
     public XSLTTemplateJson replaceTemplateById(String id, XSLTTemplateJson xsltTemplateJson) {
-        Query query = new Query(Criteria.where("_id").is(id));
-        mongoTemplate.findAndReplace(query, xsltTemplateJson, "templates-json");
-        return mongoTemplate.findOne(query, XSLTTemplateJson.class, "templates-json");
+        return transformationTemplateRepository.replaceTemplateById(id, xsltTemplateJson);
     }
 
     public XSLTTemplateJson getTemplateById(String id) {
-        Query query = new Query(Criteria.where("_id").is(id));
-        return mongoTemplate.findOne(query, XSLTTemplateJson.class, "templates-json");
+        return transformationTemplateRepository.getTemplateById(id);
     }
 
     public XSLTTemplateJson getTemplateByFilename(String filename) {
-        Query query = new Query(Criteria.where("filename").is(filename));
-        return mongoTemplate.find(query, XSLTTemplateJson.class).stream()
-                .findFirst()
-                .orElse(null); // TODO change to return Optional
+        return transformationTemplateRepository.getTemplateByFilename(filename);
     }
 }

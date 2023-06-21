@@ -2,17 +2,11 @@ package pl.transformation.transformationservice.document;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mockito;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
 
@@ -23,8 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 class TransformationDocumentServiceTest {

@@ -4,8 +4,9 @@ import lombok.*;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class XSLTTemplateXml {
     private String id;
+    @NonNull
     private String template;
 }

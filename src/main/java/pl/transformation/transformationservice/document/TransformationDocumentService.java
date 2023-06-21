@@ -3,9 +3,7 @@ package pl.transformation.transformationservice.document;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -26,7 +24,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -37,7 +38,7 @@ public class TransformationDocumentService {
     private final MongoTemplate mongoTemplate;
     private final ExecutorService executorService;
 
-    public TransformationDocumentService(MongoTemplate mongoTemplate,ExecutorService executorService) {
+    public TransformationDocumentService(MongoTemplate mongoTemplate, ExecutorService executorService) {
         this.mongoTemplate = mongoTemplate;
         this.executorService = executorService;
     }
@@ -109,7 +110,7 @@ public class TransformationDocumentService {
         Query query = new Query(Criteria.where("_id").is(id));
         return Optional.ofNullable(mongoTemplate.findOne(query, org.bson.Document.class, "templates"))
                 .map(document -> new XSLTTemplateXml(document.getObjectId("_id").toHexString(), document.getString("template")))
-                .orElse(new XSLTTemplateXml());
+                .orElse(new XSLTTemplateXml(Strings.EMPTY));
     }
 
     public XSLTTemplateJson getTemplateByIdJson(String id) {
