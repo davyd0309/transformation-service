@@ -22,20 +22,33 @@ class TransformationDocumentControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testGenerateDocument() throws Exception {
+    public void testGenerateDocumentSync() throws Exception {
         String templateId = "template-id";
         String xmlData = "<xmlData><person><name>Jan Serce</name><age>30</age><info>additional information saved xml</info></person></xmlData>";
         String templateSavedType = "xml";
         boolean logDocument = false;
-        boolean asynchronous = false;
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/template/generate/{templateId}", templateId)
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/template/{templateId}/generate", templateId)
                         .contentType(MediaType.APPLICATION_XML)
                         .content(xmlData)
                         .param("templateSavedType", templateSavedType)
-                        .param("logDocument", String.valueOf(logDocument))
-                        .param("asynchronous", String.valueOf(asynchronous)))
+                        .param("logDocument", String.valueOf(logDocument)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_XML));
+    }
+
+    @Test
+    public void testGenerateDocumentAsync() throws Exception {
+        String templateId = "template-id";
+        String xmlData = "<xmlData><person><name>Jan Serce</name><age>30</age><info>additional information saved xml</info></person></xmlData>";
+        String templateSavedType = "xml";
+        boolean logDocument = false;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/template/{templateId}/generate/async", templateId)
+                        .contentType(MediaType.APPLICATION_XML)
+                        .content(xmlData)
+                        .param("templateSavedType", templateSavedType)
+                        .param("logDocument", String.valueOf(logDocument)))
+                .andExpect(status().isOk());
     }
 }

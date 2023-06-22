@@ -12,8 +12,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import pl.transformation.transformationservice.template.json.XSLTTemplateJson;
 import pl.transformation.transformationservice.template.xml.XSLTTemplateXml;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,34 +27,18 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
-public class TransformationDocumentService {
+public class TransformProcess {
 
-    private static final Logger log = LoggerFactory.getLogger(TransformationDocumentService.class);
+    private static final Logger log = LoggerFactory.getLogger(TransformProcess.class);
 
     private final MongoTemplate mongoTemplate;
-    private final ExecutorService executorService;
 
-    public TransformationDocumentService(MongoTemplate mongoTemplate, ExecutorService executorService) {
+    public TransformProcess(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-        this.executorService = executorService;
     }
 
-    public Mono<ByteArrayResource> transformXml(DocumentData documentData) {
-        if (documentData.asynchronous()) {
-            return transformXmlAsync(documentData);
-        } else {
-            return Mono.fromCallable(() -> transformXmlSync(documentData));
-        }
-    }
-
-    private Mono<ByteArrayResource> transformXmlAsync(DocumentData documentData) {
-        return Mono.fromCallable(() -> transformXmlSync(documentData))
-                .subscribeOn(Schedulers.fromExecutorService(executorService));
-    }
-
-    private ByteArrayResource transformXmlSync(DocumentData documentData) {
+    public ByteArrayResource transformXml(DocumentData documentData) {
         try {
             String template = getTemplate(documentData);
             Document xmlDoc = createXmlBasedOnEntryFile(documentData);
@@ -74,7 +56,7 @@ public class TransformationDocumentService {
         } catch (Exception e) {
             log.error("An error occurred during XML transformation: " + e.getMessage(), e);
         }
-        return null; // TODO change to return Optional
+        return null;
     }
 
     private String getTemplate(DocumentData documentData) {
@@ -113,7 +95,7 @@ public class TransformationDocumentService {
                 .orElse(new XSLTTemplateXml(Strings.EMPTY));
     }
 
-    public XSLTTemplateJson getTemplateByIdJson(String id) {
+    private XSLTTemplateJson getTemplateByIdJson(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
         return mongoTemplate.findOne(query, XSLTTemplateJson.class, "templates-json");
     }
